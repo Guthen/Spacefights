@@ -1,6 +1,25 @@
 Player = class( Ship )
 
+Player.name = "PLAYER"
 Player.type = "light_starfighter"
+
+Player.notifications = {}
+
+function Player:dead( killer )
+    self.notifications[#self.notifications + 1] = {
+        text = ( "KILLED BY %s" ):format( killer.name ),
+        time = 2,
+    }
+end
+
+function Player:targetdead( target )
+    self.notifications[#self.notifications + 1] = {
+        text = ( "KILLED %s" ):format( target.name ),
+        time = 2,
+    }
+
+    Ship.targetdead( self, target )
+end
 
 function Player:update( dt )
     Ship.update( self, dt )
@@ -35,9 +54,16 @@ function Player:update( dt )
     if love.mouse.isDown( 2 ) then
         self:fire( dt, "missile" )
     end
+
+    --  > Notifications
+    for i, v in ipairs( self.notifications ) do
+        v.time = v.time - dt
+        if v.time <= 0 then
+            table.remove( self.notifications, i )
+        end
+    end
 end
 
-local arrow = image( "arrow.png" )
 function Player:draw()
     local w, h = love.graphics.getDimensions()
 
@@ -46,9 +72,17 @@ function Player:draw()
     
     --  > HUD
     Camera:pop()
-
-    --  > Ships positions hints
+    
+    local scores = {}
     for k, v in pairs( Ships ) do
+        --  > Scores
+        scores[#scores + 1] = {
+            text = v.name,
+            score = v.kills,
+            is_player = v == self,
+        }
+
+        --  > Ships positions hints
         if not ( v == self ) and v.health > 0 then
             if not collide( v.x + v.w / 2, v.y + v.h / 2, v.w, v.h, Camera.x, Camera.y, w, h ) then
                 local ang, dist = direction_angle( self.x, self.y, v.x, v.y ), distance( v.x, v.y, self.x, self.y ) / self.size_factor
@@ -57,9 +91,26 @@ function Player:draw()
 
                 love.graphics.setColor( v.bullet_color )
                 love.graphics.printf( round( dist, 0 ), x - math.cos( ang ) * 100, y - math.sin( ang ) * 100, 200, "right", ang, 1.5 * dist_factor, 1.5 * dist_factor ) 
-                love.graphics.draw( arrow, x, y, ang, self.size_factor * dist_factor, self.size_factor * dist_factor )
+                love.graphics.draw( v.icon, x, y, ang, self.size_factor * dist_factor, self.size_factor * dist_factor )
             end
         end
+    end
+
+    --  > Notifications
+    local limit = 400
+    love.graphics.setColor( 1, 1, 1 )
+    for i, v in ipairs( self.notifications ) do
+        love.graphics.printf( v.text, w / 2 - limit / 2, h * .6 + i * 20, limit, "center" )
+    end
+
+    --  > Scoreboard
+    table.sort( scores, function( a, b )
+        return a.score > b.score
+    end )
+    for i, v in ipairs( scores ) do
+        local limit = 200
+        love.graphics.setColor( v.is_player and self.bullet_color or { 1, 1, 1 } )
+        love.graphics.printf( v.text .. "  " .. v.score, w * .99 - limit, w * .01 + 20 * i, limit, "right" )
     end
 
     --  > Health

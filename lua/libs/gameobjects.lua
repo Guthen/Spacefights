@@ -13,6 +13,10 @@ function GameObjects.call( key, ... )
     end
 end
 
+function GameObjects.reset()
+    objects, id = {}, 0
+end
+
 function GameObjects.count()
     local count = 0
 

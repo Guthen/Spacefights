@@ -1,22 +1,28 @@
 local ship = {}
 
-ship.health = 9
+ship.health = 13
 
-ship.turn_speed = 250
-ship.max_speed = 10
-ship.move_speed = 35
+ship.turn_speed = 185
+ship.max_speed = 11
+ship.move_speed = 28
 ship.brake_speed = 3
 
 ship.icon = image( "icons/ship.png" )
-ship.image = image( "keytehr.png" )
-ship.bullet_color = { 255 / 255, 121 / 255, 48 / 255 }
+ship.image = image( "larysm.png" )
+ship.bullet_color = { 73 / 255, 170 / 255, 16 / 255 }
 
 ship.guns = {
     { 
-        x = 14, 
-        y = 7.5,
+        x = 10,
+        y = 3,
         type = "primary",
-        max_cooldown = .1,
+        max_cooldown = .2, 
+    },
+    { 
+        x = 10, 
+        y = 12, 
+        type = "primary",
+        max_cooldown = .2, 
     },
 }
 
@@ -27,9 +33,9 @@ ship.thruster = {
 
 ship.sounds = {
     shoot = {
-        "ships/shoot01b.wav",
-        "ships/shoot02b.wav",
-        "ships/shoot03b.wav",
+        "ships/shoot01.wav",
+        "ships/shoot02.wav",
+        "ships/shoot03.wav",
     },
     hit = {
         "ships/hit01.wav",

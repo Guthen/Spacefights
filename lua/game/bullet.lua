@@ -24,7 +24,8 @@ function Bullet:hit( target )
     self:destroy()
 
     if target.health <= 0 and not target.claimed then
-        self.shooter.kills = self.shooter.kills + 1
+        self.shooter:targetdead( target )
+        target:dead( self.shooter )
         target.claimed = true
     end
 end

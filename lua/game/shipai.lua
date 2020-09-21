@@ -2,6 +2,33 @@ ShipAI = class( Ship )
 
 ShipAI.target, ShipAI.target_time, ShipAI.target_max_time = nil, 0, 2
 
+local names = {
+    "ALPHAM",
+    "BOLAREL",
+    "CETA",
+    "DARIOK",
+    "EURK",
+    "FALMYS",
+    "GAKSTON",
+    "HILARIUM",
+    "ILYS",
+    "JUKERNAUL",
+}
+
+function ShipAI:init( ... )
+    --  > Get name
+    if not self.name then
+        local id = math.random( #names )
+        self.name = names[id]
+        --table.remove( names, id )
+    end
+
+    --  > Reset target
+    self.target = nil
+        
+    Ship.init( self, ... )
+end
+
 function ShipAI:findtarget()
     local target, min_dist = nil, math.huge
     for k, v in pairs( Ships ) do

@@ -23,7 +23,7 @@ function Missile:hit( target )
         end
     end
 
-    Bullet.destroy( self )
+    Bullet.hit( self, target )
 end
 
 function Missile:update( dt )

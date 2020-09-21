@@ -1,4 +1,5 @@
 love.window.setTitle( "Spacefights" )
+love.window.setMode( 1280, 820 )
 
 --  > Pixel-Art Filter
 love.graphics.setDefaultFilter( "nearest" )
@@ -21,6 +22,7 @@ require "lua.game.player"
 
 
 --  > Framework
+local slow_motion = false
 function love.load()
     math.randomseed( os.time() )
 
@@ -34,12 +36,13 @@ function love.load()
     --  > Stars background
     local factor = 5
     local w, h = love.graphics.getDimensions()
-    w = w * factor
-    h = h * factor
-    Stars( math.random( 250, 500 ) * 2, -w / 2, -h / 2, w, h )
+    MapW = w * factor
+    MapH = h * factor
+    Stars( math.random( 250, 500 ) * 2, -MapW / 2, -MapH / 2, MapW, MapH )
 end
 
 function love.update( dt )
+    if slow_motion then dt = dt * .35 end
     GameObjects.call( "update", dt )
 
     --  > Timers
@@ -54,8 +57,11 @@ end
 
 function love.keypressed( key )
     if key == "r" then
-        GameObjects.call( "destroy" )
+        GameObjects.reset()
         love.load()
+    end
+    if key == "g" then
+        slow_motion = not slow_motion
     end
 
     GameObjects.call( "keypress", key )

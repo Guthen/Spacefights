@@ -8,6 +8,7 @@ Ship, Ships = class( GameObject ), {}
 Ship.x, Ship.y = 0, 0
 Ship.vel_x, Ship.vel_y = 0, 0
 
+Ship.name = nil
 Ship.health = 10
 Ship.kills = 0
 
@@ -19,6 +20,7 @@ Ship.brake_speed = 2
 Ship.size_factor = 3
 Ship.vel_ang, Ship.ang = 0, 0
 
+Ship.icon = image( "icons/arrow.png" )
 Ship.image = image( "fighter_a.png" )
 Ship.thruster_quad_id, Ship.thruster_time, Ship.thruster_max_time = 1, 0, .2 
 Ship.color = { 1, 1, 1 }
@@ -61,14 +63,17 @@ function Ship:init( x, y, type )
 
     local ship = table_copy( require( "lua.ships." .. self.type ) ) 
     for k, v in pairs( ship ) do
-        print( k, v )
         self[k] = v
     end
 
     --  > Vars
     self.max_health = self.health
     self.color = table_copy( self.color )
-    
+    self.claimed = false
+    self.vel_x, self.vel_y, self.vel_ang = 0, 0, 0
+    self.ang = 0
+    self.name = self.name or "N/A"
+
     --  > Repositionate guns
     self.guns = table_copy( self.guns )
     for i, v in ipairs( self.guns ) do
@@ -85,6 +90,13 @@ function Ship:init( x, y, type )
 
     --  > Add to list
     Ships[self.id] = self
+end
+
+function Ship:dead( killer )
+end
+
+function Ship:targetdead( target )
+    self.kills = self.kills + 1
 end
 
 function Ship:emit( type )
@@ -225,9 +237,9 @@ end
 
 function Ship:update( dt )
     --  > Position update
-    self.x = self.x + self.vel_x
-    self.y = self.y + self.vel_y
-    self.ang = self.ang + self.vel_ang
+    self.x = self.x + self.vel_x * dt * 60
+    self.y = self.y + self.vel_y * dt * 60
+    self.ang = self.ang + self.vel_ang * dt * 60
 
     --  > Velocity loss
     local factor = self.health > 0 and 1 or .1
@@ -256,7 +268,7 @@ function Ship:update( dt )
         self.color[4] = approach( dt / 5, self.color[4] or 1, 0 )
         if self.color[4] <= 0 then
             self.color[4] = 1
-            self:init( 0, 0 )
+            self:init( -MapW / 2 + math.random( MapW ), -MapH / 2 + math.random( MapH ) )
         end
     end
 end

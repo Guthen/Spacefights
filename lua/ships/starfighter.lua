@@ -2,11 +2,12 @@ local ship = {}
 
 ship.health = 16
 
-ship.turn_speed = 150
-ship.max_speed = 8
+ship.turn_speed = 165
+ship.max_speed = 10
 ship.move_speed = 29
 ship.brake_speed = 2
 
+ship.icon = image( "icons/bomb.png" )
 ship.image = image( "fighter_b.png" )
 ship.bullet_color = { 73 / 255, 170 / 255, 16 / 255 }
 

@@ -7,6 +7,7 @@ ship.max_speed = 12
 ship.move_speed = 30
 ship.brake_speed = 3
 
+ship.icon = image( "icons/ship.png" )
 ship.image = image( "fighter_a.png" )
 ship.bullet_color = { 73 / 255, 170 / 255, 16 / 255 }
 
