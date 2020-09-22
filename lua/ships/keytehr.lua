@@ -16,7 +16,7 @@ ship.guns = {
         x = 14, 
         y = 7.5,
         type = "primary",
-        max_cooldown = .1,
+        max_cooldown = .125,
     },
 }
 

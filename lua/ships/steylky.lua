@@ -1,6 +1,6 @@
 local ship = {}
 
-ship.health = 20
+ship.health = 16
 
 ship.turn_speed = 175
 ship.max_speed = 10

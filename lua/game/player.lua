@@ -82,8 +82,8 @@ function Player:draw()
             is_player = v == self,
         }
 
-        --  > Ships positions hints
-        if not ( v == self ) and v.health > 0 then
+        if v.health > 0 then
+            --  > Ships positions hints
             if not collide( v.x + v.w / 2, v.y + v.h / 2, v.w, v.h, Camera.x, Camera.y, w, h ) then
                 local ang, dist = direction_angle( self.x, self.y, v.x, v.y ), distance( v.x, v.y, self.x, self.y ) / self.size_factor
                 local x, y = w / 2 + math.cos( ang ) * h * .25, h / 2 + math.sin( ang ) * h * .25
@@ -92,6 +92,26 @@ function Player:draw()
                 love.graphics.setColor( v.bullet_color )
                 love.graphics.printf( round( dist, 0 ), x - math.cos( ang ) * 100, y - math.sin( ang ) * 100, 200, "right", ang, 1.5 * dist_factor, 1.5 * dist_factor ) 
                 love.graphics.draw( v.icon, x, y, ang, self.size_factor * dist_factor, self.size_factor * dist_factor )
+            --  > Head UI
+            else
+                Camera:push()
+
+                --  > Health Bar
+                local bar_margin = 1
+                local bar_w, bar_h = v.w + bar_margin * 2, v.h * .1 + bar_margin * 2
+                local bar_gap = bar_h * 2
+                love.graphics.setColor( 0, 0, 0 )
+                love.graphics.rectangle( "fill", v.x, v.y - bar_gap, bar_w, bar_h )         
+            
+                love.graphics.setColor( v.bullet_color )
+                love.graphics.rectangle( "fill", v.x + bar_margin, v.y + bar_margin - bar_gap, v.w * v.health / v.max_health, self.h * .1 )         
+                
+                --  > Name
+                local limit = 250
+                --love.graphics.setColor( 1, 1, 1 )
+                love.graphics.printf( v.name, v.x + v.w / 2 - limit / 2, v.y - bar_gap * 2 - bar_h, limit, "center" )
+
+                Camera:pop()
             end
         end
     end
@@ -104,11 +124,13 @@ function Player:draw()
     end
 
     --  > Scoreboard
+    local limit = 200
+    love.graphics.printf( "SCOREBOARD", w * .99 - limit, w * .01, limit, "right" )
+    
     table.sort( scores, function( a, b )
         return a.score > b.score
     end )
     for i, v in ipairs( scores ) do
-        local limit = 200
         love.graphics.setColor( v.is_player and self.bullet_color or { 1, 1, 1 } )
         love.graphics.printf( v.text .. "  " .. v.score, w * .99 - limit, w * .01 + 20 * i, limit, "right" )
     end
