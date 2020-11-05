@@ -1,37 +1,29 @@
-local ship = {}
+local turret = {}
+turret.controlable = false
 
-ship.health = 7
+turret.health = 10
 
-ship.turn_speed = 175
-ship.max_speed = 12
-ship.move_speed = 30
-ship.brake_speed = 3
+turret.turn_speed = 200
 
-ship.icon = image( "icons/ship.png" )
-ship.image = image( "fighter_a.png" )
-ship.bullet_color = GREEN
+turret.image = image( "dc-a.png" )
+turret.bullet_color = GREEN
 
-ship.guns = {
+turret.guns = {
     { 
-        x = 12, 
+        x = 18, 
         y = 5,
         type = "primary",
-        max_cooldown = .15, 
+        max_cooldown = .25,
     },
     { 
-        x = 12, 
-        y = 10, 
+        x = 18, 
+        y = 10,
         type = "primary",
-        max_cooldown = .15, 
+        max_cooldown = .25,
     },
 }
 
-ship.thruster = {
-    x = 2,
-    y = 7,
-}
-
-ship.sounds = {
+turret.sounds = {
     shoot = {
         "ships/shoot01a.wav",
         "ships/shoot02a.wav",
@@ -49,4 +41,4 @@ ship.sounds = {
     },
 }
 
-return ship
+return turret

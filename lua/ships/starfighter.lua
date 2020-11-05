@@ -9,7 +9,7 @@ ship.brake_speed = 2
 
 ship.icon = image( "icons/bomb.png" )
 ship.image = image( "fighter_b.png" )
-ship.bullet_color = { 73 / 255, 170 / 255, 16 / 255 }
+ship.bullet_color = GREEN
 
 ship.guns = {
     { 
@@ -39,9 +39,9 @@ ship.thruster = {
 
 ship.sounds = {
     shoot = {
-        "ships/shoot01.wav",
-        "ships/shoot02.wav",
-        "ships/shoot03.wav",
+        "ships/shoot01a.wav",
+        "ships/shoot02a.wav",
+        "ships/shoot03a.wav",
     },
     hit = {
         "ships/hit01.wav",

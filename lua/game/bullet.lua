@@ -11,7 +11,10 @@ Bullet.damage = .5
 Bullet.shooter = nil
 
 Bullet.image = image( "bullet.png" )
-Bullet.color = { 1, 1, 1 }
+Bullet.color = WHITE
+
+Bullet.particle_size_kill = 35
+Bullet.particle_size_hit = 15
 
 function Bullet:init( x, y, size_factor, ang )
     self.x, self.y = x or self.x, y or self.y
@@ -23,11 +26,15 @@ end
 function Bullet:hit( target )
     self:destroy()
 
+    --  > Kill
     if target.health <= 0 and not target.claimed then
         self.shooter:targetdead( target )
         target:dead( self.shooter )
         target.claimed = true
     end
+
+    --  > Particle
+    Particle( self.x, self.y, ( target.health <= 0 and not target.claimed ) and self.particle_size_kill or self.particle_size_hit, self.shooter.bullet_color )
 end
 
 function Bullet:update( dt )
@@ -41,7 +48,9 @@ function Bullet:update( dt )
     --  > Destroy
     self.destroy_time = self.destroy_time + dt
     if self.destroy_time >= self.max_destroy_time then
+        Particle( self.x, self.y, self.particle_size_hit / 2, self.shooter.bullet_color )
         self:destroy()
+        return
     end
 
     --  > Ships collision

@@ -1,6 +1,11 @@
-local types = {}
-for i, v in ipairs( love.filesystem.getDirectoryItems( "lua/ships" ) ) do
-    types[#types + 1] = v:gsub( "%.%w+$", "" )
+local path, types = "lua/ships", {}
+for i, v in ipairs( love.filesystem.getDirectoryItems( path ) ) do
+    local file = v:gsub( "%.%w+$", "" )
+    local obj = require( path .. "/" .. file )
+    if not ( obj.controlable == false ) then
+        types[#types + 1] = file
+        print( "New controlable ship: " .. file )
+    end
 end
 
 Ship, Ships = class( GameObject ), {}
@@ -17,13 +22,15 @@ Ship.max_speed = 8
 Ship.move_speed = 20
 Ship.brake_speed = 2
 
+Ship.no_target = false
+
 Ship.size_factor = 3
 Ship.vel_ang, Ship.ang = 0, 0
 
 Ship.icon = image( "icons/arrow.png" )
 Ship.image = image( "fighter_a.png" )
 Ship.thruster_quad_id, Ship.thruster_time, Ship.thruster_max_time = 1, 0, .2 
-Ship.color = { 1, 1, 1 }
+Ship.color = WHITE
 Ship.bullet_color = Ship.color
 
 Ship.guns = {}
@@ -47,13 +54,15 @@ Ship.sounds = {
 }
 
 Ship.shader, Ship.shader_color = nil, Ship.color
+Ship.hit_anim = 1
 
+Ship.has_thruster = true
 Ship.thruster = {
     x = 3,
     y = 7,
 }
 
-Ship.type = "light_starfighter"
+Ship.type = "starfighter"
 
 function Ship:init( x, y, type )
     self.x, self.y = x or self.x, y or self.y
@@ -93,6 +102,11 @@ function Ship:init( x, y, type )
 end
 
 function Ship:dead( killer )
+    for i = 1, math.random( 3, 6 ) do
+        timer( i / 25, function()
+            Particle( self.x + math.random( -self.w, self.w ), self.y + math.random( -self.h, self.h ), math.min( i * self.w / 2, self.w * 2 ), self.bullet_color )
+        end )
+    end
 end
 
 function Ship:targetdead( target )
@@ -117,6 +131,7 @@ function Ship:getspeed()
 end
 
 function Ship:forward( dt, speed_factor )
+    if self.move_speed <= 0 then return end
     if self:getspeed() >= self.max_speed then return false end
 
     self.vel_x = self.vel_x + math.cos( self.ang ) * dt * self.move_speed * speed_factor
@@ -190,7 +205,7 @@ function Ship:fire( dt, type )
     end
 
     --  > Knockback
-    if fired_guns > 0 then
+    if fired_guns > 0 and self.move_speed > 0 then
         local ang = self.ang - math.pi
         self.vel_x = self.vel_x + math.cos( ang ) * dt * self.move_speed * fired_guns / 2
         self.vel_y = self.vel_y + math.sin( ang ) * dt * self.move_speed * fired_guns / 2
@@ -210,7 +225,7 @@ function Ship:hit( dt, dmg, x, y, color )
 
         --  > Visual effect
         self.shader = Shaders.HIT
-        self.shader_color = color or { 1, 1, 1 }
+        self.shader_color = color or WHITE
 
         timer( .15, function()
             self.shader = nil
@@ -220,18 +235,20 @@ function Ship:hit( dt, dmg, x, y, color )
     --  > Sound
     self:emit( "hit" )
 
-    --  > Knockback
-    local knockback_factor = ( self.health <= 0 and 2 or 1 ) * dmg
-    local ang = direction_angle( self.x + self.w / 2, self.y + self.h / 2, x, y ) - math.pi
-    self.vel_x = self.vel_x + math.cos( ang ) * dt * self.move_speed * knockback_factor
-    self.vel_y = self.vel_y + math.sin( ang ) * dt * self.move_speed * knockback_factor
-    
-    --  > Angle deviation
-    local is_left = self.x + self.w / 2 - x > 0
-    if is_left then
-        self.vel_ang = self.vel_ang - dt * knockback_factor
-    else
-        self.vel_ang = self.vel_ang + dt * knockback_factor
+    if self.move_speed > 0 then
+        --  > Knockback
+        local knockback_factor = ( self.health <= 0 and 2 or 1 ) * dmg
+        local ang = direction_angle( self.x + self.w / 2, self.y + self.h / 2, x, y ) - math.pi
+        self.vel_x = self.vel_x + math.cos( ang ) * dt * self.move_speed * knockback_factor
+        self.vel_y = self.vel_y + math.sin( ang ) * dt * self.move_speed * knockback_factor
+        
+        --  > Angle deviation
+        local is_left = self.x + self.w / 2 - x > 0
+        if is_left then
+            self.vel_ang = self.vel_ang - dt * knockback_factor
+        else
+            self.vel_ang = self.vel_ang + dt * knockback_factor
+        end
     end
 end
 
@@ -242,10 +259,12 @@ function Ship:update( dt )
     self.ang = self.ang + self.vel_ang * dt * 60
 
     --  > Velocity loss
-    local factor = self.health > 0 and 1 or .1
-    self.vel_x = lerp( dt * self.brake_speed * factor, self.vel_x, 0 )
-    self.vel_y = lerp( dt * self.brake_speed * factor, self.vel_y, 0 )
-    self.vel_ang = lerp( dt * self.brake_speed * factor, self.vel_ang, 0 )
+    if self.brake_speed > 0 then
+        local factor = self.health > 0 and 1 or .1
+        self.vel_x = lerp( dt * self.brake_speed * factor, self.vel_x, 0 )
+        self.vel_y = lerp( dt * self.brake_speed * factor, self.vel_y, 0 )
+        self.vel_ang = lerp( dt * self.brake_speed * factor, self.vel_ang, 0 )
+    end
 
     --  > Size
     local img_w, img_h = self.image:getDimensions()
@@ -256,12 +275,17 @@ function Ship:update( dt )
         v.cooldown = v.cooldown + dt
     end
 
+    --  > Hit Animation
+    self.hit_anim = lerp( dt * ( self.shader and 10 or 5 ), self.hit_anim, self.shader and 1.5 or 1 )
+
     --  > Thruster
     if self.health > 0 then
-        self.thruster_time = self.thruster_time + dt
-        if self.thruster_time >= self.thruster_max_time then
-            self.thruster_quad_id = self.thruster_quad_id + 1 > ( self.is_moving and 3 or 6 ) and ( self.is_moving and 1 or 4 ) or self.thruster_quad_id + 1
-            self.thruster_time = 0
+        if self.has_thruster then
+            self.thruster_time = self.thruster_time + dt
+            if self.thruster_time >= self.thruster_max_time then
+                self.thruster_quad_id = self.thruster_quad_id + 1 > ( self.is_moving and 3 or 6 ) and ( self.is_moving and 1 or 4 ) or self.thruster_quad_id + 1
+                self.thruster_time = 0
+            end
         end
     --  > Die
     else
@@ -277,12 +301,14 @@ local thruster = image( "particles/thruster.png" )
 local thruster_quads = quads( thruster, 7 )
 function Ship:draw()
     --  > Thruster
-    love.graphics.setColor( 1, 1, 1 )
-    if self.health > 0 then
-        local w = thruster:getWidth()
-        local child_x, child_y = self:getchildpos( self.thruster )
-        local quad = thruster_quads[self.thruster_quad_id]
-        love.graphics.draw( thruster, quad, self.x + self.w / 2 + child_x - math.cos( self.ang ) * ( w - 7 * self.size_factor ), self.y + self.h / 2 + child_y - math.sin( self.ang ) * ( w - 7 * self.size_factor ), self.ang, self.size_factor, self.size_factor, 0, 0 )
+    if self.has_thruster then
+        love.graphics.setColor( 1, 1, 1 )
+        if self.health > 0 then
+            local w = thruster:getWidth()
+            local child_x, child_y = self:getchildpos( self.thruster )
+            local quad = thruster_quads[self.thruster_quad_id]
+            love.graphics.draw( thruster, quad, self.x + self.w / 2 + child_x - math.cos( self.ang ) * ( w - 7 * self.size_factor ), self.y + self.h / 2 + child_y - math.sin( self.ang ) * ( w - 7 * self.size_factor ), self.ang, self.size_factor, self.size_factor, 0, 0 )
+        end
     end
     
     --  > Ship

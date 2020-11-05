@@ -126,3 +126,12 @@ function image( path )
     
     return images[path]
 end
+
+function alpha( color, a )
+    return {
+        color[1],
+        color[2],
+        color[3],
+        a,
+    }
+end

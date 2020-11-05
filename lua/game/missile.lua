@@ -7,6 +7,9 @@ Missile.damage = 5
 
 Missile.image = image( "missile.png" )
 
+Missile.particle_size_kill = 55
+Missile.particle_size_hit = 35
+
 function Missile:init( ... )
     Bullet.init( self, ... )
 
@@ -29,6 +32,6 @@ end
 function Missile:update( dt )
     self.default_ang = self.default_ang or self.ang
 
-    self.ang = self.default_ang + self.func( self.destroy_time * 10 ) / 2
+    self.ang = self.default_ang + self.func( self.destroy_time * 10 ) / 4
     Bullet.update( self, dt )
 end

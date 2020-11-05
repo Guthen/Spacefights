@@ -32,7 +32,7 @@ end
 function ShipAI:findtarget()
     local target, min_dist = nil, math.huge
     for k, v in pairs( Ships ) do
-        if not ( v == self ) and v.w and v.health > 0 then
+        if not ( v == self ) and v.w and v.health > 0 and not v.no_target then
             local dist = distance( v.x + v.w / 2, v.y + v.h / 2, self.x + self.w / 2, self.y + self.h / 2 )
             if dist < min_dist then
                 min_dist = dist

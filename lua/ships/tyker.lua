@@ -9,7 +9,7 @@ ship.brake_speed = 2.5
 
 ship.icon = image( "icons/bomb.png" )
 ship.image = image( "tyker.png" )
-ship.bullet_color = { 255 / 255, 121 / 255, 48 / 255 }
+ship.bullet_color = ORANGE
 
 ship.guns = {
     { 

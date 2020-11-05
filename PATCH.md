@@ -25,7 +25,7 @@
 + Kills count is now done in `Ship.targetdead` instead of `Bullet.hit`, even if `Bullet.hit` calls `Ship.targetdead`
 + Map dimensions (actually stars background dimensions) are stocked in globals `MapW` and `MapH`
 
-## ✨ **22/09/20**
+## ✨ **22/09/2020**
 ## 🆕 News
 + Players Head-UI :
     + Name
@@ -38,3 +38,20 @@
     + Icon has been changed to `icons/arrow.png` instead of `icons/bomb.png`
     + Weapons cooldown have been reduced from `0.2s` to `0.15s`
 + Added `SCOREBOARD` title upside the scoreboard
+
+## 👩‍💻 **05/11/2020**
+## 🆕 News
++ **Particle Effect** system (circle of blinking colors), used as explosions effects
++ **Particle Effect** on bullet hit and destroy
++ Set of 3-6 (random) **particles** on Ships deaths
++ **Turrets**: act as ships but cannot move (not controlable)
+    + **K3**: an orange turret which fires a missile each second
+    + **DC-A**: a green turret armed with 2 blasters with a medium fire rate
++ Add **TODO.md** file for listing things to do
++ New **Font**: SMB2.ttf (Super Mario Bros 2-like font)
++ Add **No Target Mode** (cheats): press `N` key to not being targeted, but you can still take hits 
+
+## 🔧 Fixes
++ **Missile Spread** intensity decreased (missiles are twice more accurate)
++ **Targets Indicator UI** is animated on target hit (scale up plus white color)
++ **Notifications** now support color and icon (used on kill and death notifications)
