@@ -135,3 +135,22 @@ function alpha( color, a )
         a,
     }
 end
+
+--  @function some
+--      | description: Checks if one of the values in a table pass a test callback
+--      | params:
+--          table tbl: Table to check the values
+--          function callback: Test-callback, called for each values (until it returns true) with:
+--              any value: Current value
+--              any key: Current key
+--              table tbl: Table used
+--      | return boolean test_checked
+function some( tbl, callback )
+    for k, v in pairs( tbl ) do
+        if callback( v, k, tbl ) then
+            return true
+        end
+    end
+
+    return false
+end

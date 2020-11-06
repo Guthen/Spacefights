@@ -35,9 +35,9 @@ turret.sounds = {
         "ships/hit03.wav",
     },
     destroy = {
-        "ships/destroy01.wav",
-        "ships/destroy02.wav",
-        "ships/destroy03.wav",
+        "turrets/destroy01.wav",
+        "turrets/destroy02.wav",
+        "turrets/destroy03.wav",
     },
 }
 

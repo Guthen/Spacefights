@@ -17,3 +17,10 @@
 ## 🔧 Others
 + **Squad Tactic**: be on formation, members follow the leader, on leader death the squad disbands
 + **Map Limit**: block ships from being outside the map
++ **Obstacles**: ships could collapse with them (moving asteroids) but also can be destroy when fired at
++ **Power-ups**: 
+    + ✅ Repair the ship (+25%HP and all weapons repaired or +50%HP)
+    + Boost (+25%SPD + trail)
+
+## 🦗 Bugs
++ **Rotation Bug**: sometimes, the ship will turn other side to rotate toward a point (but it shouldn't)

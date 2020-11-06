@@ -8,23 +8,16 @@ love.graphics.setDefaultFilter( "nearest" )
 love.graphics.setFont( love.graphics.newFont( "assets/fonts/SMB2.ttf", 12 ) )
 
 --  > Dependencies
-require "lua.libs.class"
-require "lua.libs.timer"
-require "lua.libs.util"
-require "lua.libs.gameobjects"
+require "lua.libs.require"
+require "lua.libs.*"
 
 --  > Game
-require "lua.shaders"
-require "lua.game.camera"
-require "lua.game.stars"
-require "lua.game.particle"
-require "lua.game.bullet"
-require "lua.game.missile"
-require "lua.game.ship"
-require "lua.game.shipai"
-require "lua.game.turret"
-require "lua.game.player"
+require "lua.*"
+require "lua.game.*"
 
+function random_map_position()
+    return math.random( -MapW / 2, MapW ), math.random( -MapH / 2, MapH )
+end
 
 --  > Framework
 local slow_motion, slow_motion_factor, motion_time = false, .35, 1
@@ -48,6 +41,11 @@ function love.load()
     MapW = w * factor
     MapH = h * factor
     Stars( math.random( 250, 500 ) * 2, -MapW / 2, -MapH / 2, MapW, MapH )
+
+    --  > Power-Up
+    for i = 1, 10 do
+        PowerUp( "repair", random_map_position() )
+    end
 end
 
 function love.update( dt )
@@ -57,6 +55,8 @@ function love.update( dt )
 
     --  > Update Objects
     GameObjects.call( "update", dt )
+
+    Camera:update( dt )
 
     --  > Timers
     for k, v in pairs( Timers ) do

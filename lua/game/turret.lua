@@ -18,6 +18,7 @@ Turret.shader, Turret.shader_color = nil, Turret.color
 Turret.hit_anim = 1
 
 Turret.has_thruster = false
+Turret.can_power_up = false
 
 Turret.type = "k3"
 

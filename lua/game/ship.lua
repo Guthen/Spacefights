@@ -118,10 +118,10 @@ function Ship:emit( type )
     if not sounds or #sounds <= 0 then return false end
 
     local volume = math.min( 1 / distance( self.x, self.y, GamePlayer.x, GamePlayer.y ) * 100, 1 )
-
     if volume > .1 then
         local source = love.audio.newSource( "assets/sounds/" .. sounds[math.random( #sounds )], "static" )
-        source:setVolume( volume )
+        source:setVolume( .5 )
+        source:setPosition( self.x > GamePlayer.x and 1 or -1, self.y > GamePlayer.y and 1 or -1, 0 )
         source:play()
     end
 end

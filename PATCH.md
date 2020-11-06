@@ -55,3 +55,19 @@
 + **Missile Spread** intensity decreased (missiles are twice more accurate)
 + **Targets Indicator UI** is animated on target hit (scale up plus white color)
 + **Notifications** now support color and icon (used on kill and death notifications)
+
+## 💼 **06/11/2020**
+
+## 🆕 News
++ **Shake Effect** system: improve the camera system by adding a shake function
++ **Screen Shakes** on being hit, firing and player death
++ **Sounds**: 
+    + new destroy sounds for turrets
+    + implemented stereo sound placement (but don't know if it's works)
++ **Power-Ups**: new power-ups spawning in the map:
+    + **Repair**: repair your ship:
+        + If your ship has one or more broken weapon, it repairs the weapons and gives you +25%HP
+        + Else gives you +50%HP
+        + **AI**: Take the power-up when he is below 50%HP and has no target or one of his weapon is dead
+
+## 🔧 Fixes

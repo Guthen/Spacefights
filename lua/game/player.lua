@@ -1,3 +1,5 @@
+require "lua.game.ship"
+
 Player = class( Ship )
 
 Player.name = "PLAYER"
@@ -14,6 +16,7 @@ function Player:dead( killer )
         scale = 0,
     }
 
+    Camera:shake( 7 )
     Ship.dead( self, killer )
 end
 
@@ -27,6 +30,11 @@ function Player:targetdead( target )
     }
 
     Ship.targetdead( self, target )
+end
+
+function Player:hit( dt, dmg, x, y, color )
+    Camera:shake( dmg )
+    Ship.hit( self, dt, dmg, x, y, color )
 end
 
 function Player:update( dt )
@@ -69,9 +77,11 @@ function Player:update( dt )
     --  > Fire
     if love.mouse.isDown( 1 ) then
         self:fire( dt, "primary" )
+        Camera:shake( 1 )
     end
     if love.mouse.isDown( 2 ) then
         self:fire( dt, "missile" )
+        Camera:shake( 2 )
     end
 end
 
