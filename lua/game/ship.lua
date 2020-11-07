@@ -99,6 +99,9 @@ function Ship:init( x, y, type )
 
     --  > Add to list
     Ships[self.id] = self
+    HUD:addtarget( self, self.bullet_color, function( ship ) 
+        return ship.health > 0 
+    end, true )
 end
 
 function Ship:dead( killer )
@@ -292,7 +295,7 @@ function Ship:update( dt )
         self.color[4] = approach( dt / 5, self.color[4] or 1, 0 )
         if self.color[4] <= 0 then
             self.color[4] = 1
-            self:init( -MapW / 2 + math.random( MapW ), -MapH / 2 + math.random( MapH ) )
+            self:init( random_map_position() )
         end
     end
 end

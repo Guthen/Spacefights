@@ -11,6 +11,7 @@ PowerUp.size_factor = 3
 PowerUp.ang = 0
 
 PowerUp.color = WHITE
+PowerUp.icon = image( "icons/wrench.png" )
 PowerUp.image = image( "power-ups/repair.png" )
 PowerUp.type = "repair"
 
@@ -34,6 +35,9 @@ function PowerUp:init( type, x, y )
 
     --  > List
     PowerUps[self.id] = self
+    HUD:addtarget( self, WHITE, function( powerup, player )
+        return distance( powerup.x + powerup.w / 2, powerup.y + powerup.h / 2, player.x + player.w / 2, player.y + player.h / 2 ) / powerup.size_factor <= 500
+    end )
 end
 
 function PowerUp:oncollide( ship )
@@ -75,6 +79,7 @@ function PowerUp:draw()
 end
 
 function PowerUp:destroy()
+    HUD:removetarget( self )
     PowerUps[self.id] = nil
     GameObject.destroy( self )
 end

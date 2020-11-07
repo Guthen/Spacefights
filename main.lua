@@ -16,7 +16,7 @@ require "lua.*"
 require "lua.game.*"
 
 function random_map_position()
-    return math.random( -MapW / 2, MapW ), math.random( -MapH / 2, MapH )
+    return math.random( MapW ), math.random( MapH )
 end
 
 --  > Framework
@@ -24,23 +24,24 @@ local slow_motion, slow_motion_factor, motion_time = false, .35, 1
 function love.load()
     math.randomseed( os.time() )
 
-    --  > Ship
-    GamePlayer = Player( love.graphics.getWidth() * .25, love.graphics.getHeight() / 2 )
-    ShipAI( 500, 500 )
-    ShipAI( 500, 750 )
-    ShipAI( 500, 250 )
-    ShipAI( 500, 0 )
-
-    --  > Turret
-    Turret( 0, 0 )
-    Turret( 500, 0, "dc-a" )
-
     --  > Stars background
     local factor = 5
     local w, h = love.graphics.getDimensions()
     MapW = w * factor
     MapH = h * factor
-    Stars( math.random( 250, 500 ) * 2, -MapW / 2, -MapH / 2, MapW, MapH )
+    Stars( math.random( 250, 500 ) * 2, 0, 0, MapW, MapH )
+
+    --  > Ship
+    GamePlayer = Player( random_map_position() )
+    ShipAI( random_map_position() )
+    ShipAI( random_map_position() )
+    ShipAI( random_map_position() )
+    ShipAI( random_map_position() )
+
+    --  > Turret
+    Turret( random_map_position() )
+    local x, y = random_map_position()
+    Turret( x, y, "dc-a" )
 
     --  > Power-Up
     for i = 1, 10 do

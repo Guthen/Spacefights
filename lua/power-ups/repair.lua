@@ -1,4 +1,5 @@
 local powerup = {}
+powerup.icon = image( "icons/wrench.png" )
 powerup.image = image( "power-ups/repair.png" )
 
 powerup.min_hp_percent = .25 --  > Percent of health given when ship has one or more weapons gone (cuz weapons are repaired)

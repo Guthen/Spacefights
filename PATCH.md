@@ -70,4 +70,11 @@
         + Else gives you +50%HP
         + **AI**: Take the power-up when he is below 50%HP and has no target or one of his weapon is dead
 
+## 🔧 **07/11/2020**
+
+## 🆕 News
++ **Power-Ups** now appear on Target UI under a distance of 500 units, so you can localize them easier
++ **HUD** component which allows to add or remove target on screen 
+
 ## 🔧 Fixes
++ **Power-Ups** positioning is now fixed (can't be outside the map), actually all entities rely now on `random_map_position` function
