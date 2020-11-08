@@ -62,6 +62,8 @@ Ship.thruster = {
     y = 7,
 }
 
+Ship.respawn = true
+
 Ship.type = "starfighter"
 
 function Ship:init( x, y, type )
@@ -123,7 +125,7 @@ function Ship:emit( type )
     local volume = math.min( 1 / distance( self.x, self.y, GamePlayer.x, GamePlayer.y ) * 100, 1 )
     if volume > .1 then
         local source = love.audio.newSource( "assets/sounds/" .. sounds[math.random( #sounds )], "static" )
-        source:setVolume( .5 )
+        source:setVolume( volume )
         source:setPosition( self.x > GamePlayer.x and 1 or -1, self.y > GamePlayer.y and 1 or -1, 0 )
         source:play()
     end
@@ -199,6 +201,12 @@ function Ship:fire( dt, type )
                 bullet.color = self.bullet_color
                 bullet.shooter = self
 
+                local particle = Particle( bullet.x, bullet.y, bullet.particle_size_hit / 2, bullet.color )
+                particle.update = function( particle, dt )
+                    particle.x, particle.y = self:getgunpos( i )
+                    Particle.update( particle, dt )
+                end
+
                 --  > Sound
                 self:emit( "shoot" )
 
@@ -213,6 +221,8 @@ function Ship:fire( dt, type )
         self.vel_x = self.vel_x + math.cos( ang ) * dt * self.move_speed * fired_guns / 2
         self.vel_y = self.vel_y + math.sin( ang ) * dt * self.move_speed * fired_guns / 2
     end
+
+    return fired_guns > 0
 end
 
 function Ship:hit( dt, dmg, x, y, color )
@@ -294,8 +304,12 @@ function Ship:update( dt )
     else
         self.color[4] = approach( dt / 5, self.color[4] or 1, 0 )
         if self.color[4] <= 0 then
-            self.color[4] = 1
-            self:init( random_map_position() )
+            if self.respawn then
+                self.color[4] = 1
+                self:init( random_map_position() )
+            else
+                self:destroy()
+            end
         end
     end
 end

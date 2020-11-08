@@ -15,6 +15,14 @@ PowerUp.icon = image( "icons/wrench.png" )
 PowerUp.image = image( "power-ups/repair.png" )
 PowerUp.type = "repair"
 
+PowerUp.sounds = {
+    pickup = {
+        "power-ups/pickup01.wav",
+        "power-ups/pickup02.wav",
+        "power-ups/pickup03.wav",
+    }
+}
+
 PowerUp.respawn = true
 
 function PowerUp:init( type, x, y )
@@ -55,6 +63,7 @@ function PowerUp:update( dt )
         if v.health > 0 and collide( self.x, self.y, self.w, self.h, v.x, v.y, v.w, v.h ) then
             self:oncollide( v )
             self:destroy()
+            Ship.emit( self, "pickup" )
             v.target = nil --  > reset target
 
             --  > Respawn
@@ -75,7 +84,7 @@ function PowerUp:draw()
     local scale = self.w / img_h
 
     love.graphics.setColor( self.color )
-    love.graphics.draw( self.image, self.x, self.y, self.ang, scale, scale, img_h / 2, img_h / 2 )
+    love.graphics.draw( self.image, self.x + self.w / 2, self.y + self.h / 2, self.ang, scale, scale, img_h / 2, img_h / 2 )
 end
 
 function PowerUp:destroy()

@@ -75,6 +75,20 @@
 ## 🆕 News
 + **Power-Ups** now appear on Target UI under a distance of 500 units, so you can localize them easier
 + **HUD** component which allows to add or remove target on screen 
++ **Wrench** icon: used by the Repair Power-Up on Target UI
 
 ## 🔧 Fixes
 + **Power-Ups** positioning is now fixed (can't be outside the map), actually all entities rely now on `random_map_position` function
+
+## 🔧 **08/11/2020**
+
+## 🆕 News
++ **Sounds**: add 3 sounds on Power-Up picking up
++ **Particles**: add particles on firing guns 
+
+## 🔧 Fixes
++ Fix shake when you try to fire with weapons you don't have
++ Fix sound dynamic volume (based on distance with player and emitter)
++ Fix angle of targets on Target UI (more centered now)
++ Fix power-up drawing which didn't suit with his hitbox
++ Turrets don't respawn anymore

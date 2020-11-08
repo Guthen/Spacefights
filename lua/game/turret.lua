@@ -19,6 +19,7 @@ Turret.hit_anim = 1
 
 Turret.has_thruster = false
 Turret.can_power_up = false
+Turret.respawn = false
 
 Turret.type = "k3"
 

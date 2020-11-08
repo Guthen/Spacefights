@@ -76,12 +76,14 @@ function Player:update( dt )
 
     --  > Fire
     if love.mouse.isDown( 1 ) then
-        self:fire( dt, "primary" )
-        Camera:shake( 1 )
+        if self:fire( dt, "primary" ) then
+            Camera:shake( 1 )
+        end
     end
     if love.mouse.isDown( 2 ) then
-        self:fire( dt, "missile" )
-        Camera:shake( 2 )
+        if self:fire( dt, "missile" ) then
+            Camera:shake( 2 )
+        end
     end
 end
 

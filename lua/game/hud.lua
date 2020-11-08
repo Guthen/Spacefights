@@ -36,8 +36,8 @@ function HUD:draw( player )
     for k, v in pairs( self.targets ) do
         if v.can_draw( v.target, player ) then
             --  > Ships positions hints
-            if not collide( v.target.x + v.target.w / 2, v.target.y + v.target.h / 2, v.target.w, v.target.h, Camera.x, Camera.y, w, h ) then
-                local ang, dist = direction_angle( player.x, player.y, v.target.x, v.target.y ), distance( v.target.x, v.target.y, player.x, player.y ) / player.size_factor
+            if not collide( v.target.x, v.target.y, v.target.w, v.target.h, Camera.x, Camera.y, w, h ) then
+                local ang, dist = direction_angle( player.x + player.w / 2, player.y + player.h / 2, v.target.x + v.target.w / 2, v.target.y + v.target.h / 2 ), distance( v.target.x, v.target.y, player.x, player.y ) / player.size_factor
                 local x, y = w / 2 + math.cos( ang ) * h * .25, h / 2 + math.sin( ang ) * h * .25
                 local dist_factor = math.min( math.max( 1 / dist * 250, .5 ), .85 ) * ( v.target.hit_anim or 1 )
 
