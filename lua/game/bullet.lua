@@ -28,8 +28,8 @@ function Bullet:hit( target )
 
     --  > Kill
     if target.health <= 0 and not target.claimed then
-        self.shooter:targetdead( target )
-        target:dead( self.shooter )
+        self.shooter:on_target_death( target )
+        target:on_death( self.shooter )
         target.claimed = true
     end
 
@@ -59,7 +59,7 @@ function Bullet:update( dt )
     for k, v in pairs( Ships ) do
         if not ( v == self.shooter ) then
             if collide( self.x, self.y, size, size, v.x, v.y, v.w, v.h ) then
-                v:hit( dt, self.damage, self.x, self.y--[[ , self.color ]]--[[ , { 178/255, 16/255, 48/255, .75 } ]] --[[ , { self.color[1], self.color[2], self.color[3], .2 } ]] )
+                v:hit( dt, self.damage, self.x, self.y )
                 self:hit( v )
             end
         end

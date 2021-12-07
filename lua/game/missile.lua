@@ -21,7 +21,7 @@ function Missile:hit( target )
     for i, v in ipairs( target.guns ) do
         local dist = distance( target.x + v.x, target.y + v.y, self.x, self.y ) / self.size_factor
         if dist <= 16 then
-            v.dead = true
+            v.on_death = true
             break
         end
     end

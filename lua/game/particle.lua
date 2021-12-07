@@ -3,16 +3,20 @@ Particle.color = WHITE
 Particle.x, Particle.y = 0, 0
 Particle.radius = 15
 
-function Particle:init( x, y, radius, color )
+function Particle:init( x, y, radius, color, life_time )
     self.x = x or self.x
     self.y = y or self.y
     self.radius = radius or self.radius
     self.color = color or self.color
+    self.life_time = life_time or self.radius / 100
+
+    self.radius_lose_psecond = self.radius / self.life_time
 end
 
 function Particle:update( dt )
-    self.radius = lerp( dt * 10, self.radius, 0 )
-    if self.radius <= 1 then
+    self.life_time = self.life_time - dt
+    self.radius = lerp( 1 / self.life_time * dt, self.radius, 0 )
+    if self.life_time <= 0 then
         self:destroy()
     end
 end

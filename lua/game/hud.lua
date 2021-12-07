@@ -1,7 +1,8 @@
 HUD = {}
+HUD.z_index = 1
 HUD.targets = {}
 
-function HUD:addtarget( target, color, can_draw, draw_head_ui )
+function HUD:add_target( target, color, can_draw, draw_head_ui )
     self.targets[target.id] = {
         target = target,
         color = color or target.bullet_color or WHITE,
@@ -12,13 +13,13 @@ function HUD:addtarget( target, color, can_draw, draw_head_ui )
     }
 end
 
-function HUD:removetarget( target )
+function HUD:remove_target( target )
     self.targets[target.id] = nil
 end
 
-local w, h = love.graphics.getDimensions()
 function HUD:draw( player )
     Camera:pop()
+    love.graphics.translate( Camera:get_screen_shake_translation( 2 ) )
     
     local scores = {}
     for k, v in pairs( Ships ) do
@@ -36,9 +37,9 @@ function HUD:draw( player )
     for k, v in pairs( self.targets ) do
         if v.can_draw( v.target, player ) then
             --  > Ships positions hints
-            if not collide( v.target.x, v.target.y, v.target.w, v.target.h, Camera.x, Camera.y, w, h ) then
+            if not collide( v.target.x, v.target.y, v.target.w, v.target.h, Camera.x, Camera.y, SCR_W, SCR_H ) then
                 local ang, dist = direction_angle( player.x + player.w / 2, player.y + player.h / 2, v.target.x + v.target.w / 2, v.target.y + v.target.h / 2 ), distance( v.target.x, v.target.y, player.x, player.y ) / player.size_factor
-                local x, y = w / 2 + math.cos( ang ) * h * .25, h / 2 + math.sin( ang ) * h * .25
+                local x, y = SCR_W / 2 + math.cos( ang ) * SCR_H * .25, SCR_H / 2 + math.sin( ang ) * SCR_H * .25
                 local dist_factor = math.min( math.max( 1 / dist * 250, .5 ), .85 ) * ( v.target.hit_anim or 1 )
 
                 love.graphics.setColor( v.target.shader and WHITE or v.color )
@@ -71,7 +72,7 @@ function HUD:draw( player )
 
     --  > Notifications
     local font, limit = love.graphics.getFont(), 400
-    local x, y = w / 2, h * .6
+    local x, y = SCR_W / 2, SCR_H * .6
     for i, v in ipairs( player.notifications ) do
         love.graphics.setColor( v.color or WHITE )
 
@@ -88,37 +89,40 @@ function HUD:draw( player )
     --  > Scoreboard
     local limit = 200
     love.graphics.setColor( WHITE )
-    love.graphics.printf( "SCOREBOARD", w * .99 - limit, w * .01, limit, "right" )
+    love.graphics.printf( "SCOREBOARD", SCR_W * .99 - limit, SCR_W * .01, limit, "right" )
     
     table.sort( scores, function( a, b )
         return a.score > b.score
     end )
     for i, v in ipairs( scores ) do
         love.graphics.setColor( v.is_player and player.bullet_color or WHITE )
-        love.graphics.printf( v.text .. "  " .. v.score, w * .99 - limit, w * .01 + 20 * i, limit, "right" )
+        love.graphics.printf( v.text .. "  " .. v.score, SCR_W * .99 - limit, SCR_W * .01 + 20 * i, limit, "right" )
     end
 
+--[[     love.graphics.setColor( WHITE )
+    love.graphics.print( ( "ANGLE  %d" ):format( player.ang ), SCR_W * .01, SCR_H * .8 - 65 )]]
+    
     --  > Health
     local health = math.floor( player.health / player.max_health * 100, 0 )
     love.graphics.setColor( health > 75 and { .2, 1, .2 } or health > 25 and { 1, 1, .2 } or { .75, .1, .1 } )
-    love.graphics.print( ( "%s  %d%%" ):format( player.type:upper(), health ), w * .01, h * .8 - 45 )
+    love.graphics.print( ( "%s  %d%%" ):format( player.type:upper(), health ), SCR_W * .01, SCR_H * .8 - 45 )
 
     --  > Speed
-    local speed = math.floor( player:getspeed() / player.max_speed * 100 )
+    local speed = math.floor( player:get_speed() / player.max_speed * 100 )
     love.graphics.setColor( 1, 1, 1 )
-    love.graphics.print( ( "SPEED  %d%%" ):format( math.min( speed, 100 ) ), w * .01, h * .8 - 25 )
+    love.graphics.print( ( "SPEED  %d%%" ):format( math.min( speed, 100 ) ), SCR_W * .01, SCR_H * .8 - 25 )
 
     --  > Kills
-    love.graphics.print( ( "KILLS  %d" ):format( player.kills ), w * .01, h * .8 - 5 )
+    love.graphics.print( ( "KILLS  %d" ):format( player.kills ), SCR_W * .01, SCR_H * .8 - 5 )
 
     --  > Guns status
     local count = {}
     for i, v in ipairs( player.guns ) do
-        local ready = player.health > 0 and not v.dead and v.cooldown >= v.max_cooldown - .05
-        love.graphics.setColor( ready and { .2, 1, .2 } or ( v.dead or player.health <= 0 ) and { .75, .1, .1 } or WHITE )
+        local ready = player.health > 0 and not v.on_death and v.cooldown >= v.max_cooldown - .05
+        love.graphics.setColor( ready and { .2, 1, .2 } or ( v.on_death or player.health <= 0 ) and { .75, .1, .1 } or WHITE )
         
         count[v.type] = ( count[v.type] or 0 ) + 1
-        love.graphics.print( ( "%s %d  %s" ):format( v.type:upper(), count[v.type], ready and "READY" or ( v.dead or player.health <= 0 ) and "DEAD" or round( math.min( v.cooldown, v.max_cooldown ), 1 ) .. "s" ), w * .01, h * .8 + 20 * i )
+        love.graphics.print( ( "%s %d  %s" ):format( v.type:upper(), count[v.type], ready and "READY" or ( v.on_death or player.health <= 0 ) and "DEAD" or round( math.min( v.cooldown, v.max_cooldown ), 1 ) .. "s" ), SCR_W * .01, SCR_H * .8 + 20 * i )
     end
 
     Camera:push()

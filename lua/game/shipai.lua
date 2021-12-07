@@ -39,7 +39,7 @@ function ShipAI:findtarget()
         local min_dist = math.huge
         for k, v in pairs( PowerUps ) do
             local dist = distance( self.x + self.w / 2, self.y + self.h / 2, v.x + v.w / 2, v.y + v.h / 2 )
-            if v:canaitarget( self ) and dist < min_dist and dist / self.size_factor < self.max_powerup_dist then
+            if v:can_ai_target( self ) and dist < min_dist and dist / self.size_factor < self.max_powerup_dist then
                 min_dist = dist
                 target = v
             end
@@ -67,13 +67,13 @@ end
 function ShipAI:update( dt )
     Ship.update( self, dt )
 
-    --  > Dead, not big surprise
+    --  > on_death, not big surprise
     if self.health <= 0 then return end
 
     --  > Target
     if self.target then
         --  > Follow
-        self:lookat( dt, self.target.x, self.target.y )
+        self:look_at( dt, self.target.x, self.target.y )
         self:forward( dt, 1 )
 
         --  > Ship
@@ -88,7 +88,7 @@ function ShipAI:update( dt )
 
             --  > Fire
             local ang = direction_angle( self.x + self.w / 2, self.y + self.h / 2, self.target.x + self.target.w / 2, self.target.y + self.target.h / 2 )
-            if math.abs( self:getangdiff( ang ) ) < math.pi / 10 then
+            if math.abs( self:get_angle_difference( ang ) ) < math.pi / 10 then
                 self:fire( dt, "primary" )
                 self:fire( dt, "missile" )
             end

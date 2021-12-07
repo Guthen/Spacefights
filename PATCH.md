@@ -22,16 +22,16 @@
 + Target reset on AI spawn
 
 ### 📃 Notes
-+ Kills count is now done in `Ship.targetdead` instead of `Bullet.hit`, even if `Bullet.hit` calls `Ship.targetdead`
++ Kills count is now done in `Ship.on_target_death` instead of `Bullet.hit`, even if `Bullet.hit` calls `Ship.on_target_death`
 + Map dimensions (actually stars background dimensions) are stocked in globals `MapW` and `MapH`
 
 ## ✨ **22/09/2020**
-## 🆕 News
+### 🆕 News
 + Players Head-UI :
     + Name
     + Health bar
 
-## 🔧 Fixes
+### 🔧 Fixes
 + **Steylky**'s health down from **20** to **16**
 + **Keytehr**'s weapons cooldown have been up to `0.125s` instead of `0.1s`
 + **Larysm** :
@@ -40,7 +40,7 @@
 + Added `SCOREBOARD` title upside the scoreboard
 
 ## 👩‍💻 **05/11/2020**
-## 🆕 News
+### 🆕 News
 + **Particle Effect** system (circle of blinking colors), used as explosions effects
 + **Particle Effect** on bullet hit and destroy
 + Set of 3-6 (random) **particles** on Ships deaths
@@ -51,14 +51,13 @@
 + New **Font**: SMB2.ttf (Super Mario Bros 2-like font)
 + Add **No Target Mode** (cheats): press `N` key to not being targeted, but you can still take hits 
 
-## 🔧 Fixes
+### 🔧 Fixes
 + **Missile Spread** intensity decreased (missiles are twice more accurate)
 + **Targets Indicator UI** is animated on target hit (scale up plus white color)
 + **Notifications** now support color and icon (used on kill and death notifications)
 
 ## 💼 **06/11/2020**
-
-## 🆕 News
+### 🆕 News
 + **Shake Effect** system: improve the camera system by adding a shake function
 + **Screen Shakes** on being hit, firing and player death
 + **Sounds**: 
@@ -68,27 +67,37 @@
     + **Repair**: repair your ship:
         + If your ship has one or more broken weapon, it repairs the weapons and gives you +25%HP
         + Else gives you +50%HP
-        + **AI**: Take the power-up when he is below 50%HP and has no target or one of his weapon is dead
+        + **AI**: Take the power-up when he is below 50%HP and has no target or one of his weapon is on_death
 
 ## 🔧 **07/11/2020**
-
-## 🆕 News
+### 🆕 News
 + **Power-Ups** now appear on Target UI under a distance of 500 units, so you can localize them easier
 + **HUD** component which allows to add or remove target on screen 
 + **Wrench** icon: used by the Repair Power-Up on Target UI
 
-## 🔧 Fixes
+### 🔧 Fixes
 + **Power-Ups** positioning is now fixed (can't be outside the map), actually all entities rely now on `random_map_position` function
 
 ## 🔧 **08/11/2020**
-
-## 🆕 News
+### 🆕 News
 + **Sounds**: add 3 sounds on Power-Up picking up
 + **Particles**: add particles on firing guns 
 
-## 🔧 Fixes
+### 🔧 Fixes
 + Fix shake when you try to fire with weapons you don't have
 + Fix sound dynamic volume (based on distance with player and emitter)
 + Fix angle of targets on Target UI (more centered now)
 + Fix power-up drawing which didn't suit with his hitbox
 + Turrets don't respawn anymore
+
+# 🔧 **07/12/21**
+### 🆕 News
++ **Sounds**: add 2 sounds when missiles are ready to fire again & 4 sounds (burst fire and alarm) which are not implemented yet
++ **Smooth Camera**: camera now move towards the target (player here) smoothly 
+
+### 🔧 Fixes
++ Fix ship rotation turning in the other side instead of continuing 
++ Twick particles numbers and lifetime on ship destruction
++ Renamed some functions to be easily readable
++ Game Structure has been updated to last version of my [Love2D Project Starter](https://github.com/Guthen/love2d-project-starter)
++ Cheat Shortcuts now can only be activated while in DEBUG mode (key ',') 

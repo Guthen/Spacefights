@@ -17,6 +17,49 @@ function table_copy( tbl )
     return copy
 end
 
+--  @function table_count
+--      | description: Count how many elements are present in the table
+--      | params:
+--          table tbl: Table to iterate
+--      | return number len
+function table_count( tbl )
+    return table_reduce( tbl, function( acc ) return acc + 1 end, 0 )
+end
+
+--  @function table_reduce
+--      | description: Iterate a table and accumulate a value
+--      | params:
+--          table tbl: Table to iterate
+--          function callback: Function (number acc, any v, any k, table tbl) who must return the new value of the accumulator
+--          any value = 0: Start value
+--      | return any acc
+function table_reduce( tbl, callback, value )
+    local acc = value or 0
+
+    for k, v in pairs( tbl ) do
+        acc = callback( acc, v, k, tbl )
+    end
+
+    return acc
+end
+
+function print_table( tbl, tabs )
+    tabs = tabs or 0
+    
+    local tab = tabs > 0 and ( "\t" ):rep( tabs ) or ""
+    print( tab .. "{" )
+    for k, v in pairs( tbl ) do
+        if type( v ) == "table" then
+            print( tab .. "\t" .. tostring( k ) .. " = " )
+            print_table( v, tabs + 1 )
+        else
+            print( tab .. "\t" .. tostring( k ) .. " = " .. tostring( v ) )
+        end
+    end
+    print( tab .. "}" )
+end
+
+
 --  @function lerp
 --      | description: Linear-Interpolation between two values
 --      | params:
@@ -102,12 +145,47 @@ end
 --      | params:
 --          Image image: Image/Tileset reference
 --      | return: table quads
-function quads( image, quad_width )
+function quads( image )
     local quads = {}
 
     local w, h = image:getDimensions()
-    for x = 0, w - h, quad_width or h do
-        quads[#quads + 1] = love.graphics.newQuad( x, 0, quad_width or h, h, w, h )
+    for x = 0, w - h, h do
+        quads[#quads + 1] = love.graphics.newQuad( x, 0, h, h, w, h )
+    end
+
+    return quads
+end
+
+--  @function tileset
+--      | description: Create a table of quads of the given image according to a constant quad size
+--      | params:
+--          Image image: Image/Tileset reference
+--          number quad_w: Quad Width
+--          number quad_h: Quad Height
+--      | return: table quads
+function tileset( image, quad_w, quad_h )
+    local quads = {}
+
+    quad_h = quad_h or quad_w
+
+    local w, h = image:getDimensions()
+    for y = 0, h - quad_h, quad_h do
+        for x = 0, w - quad_w, quad_w do
+            quads[#quads + 1] = love.graphics.newQuad( x, y, quad_w, quad_h, w, h )
+        end
+    end
+
+    return quads
+end
+
+function quads_from_animations( anims )
+    local quads = {}
+
+    for k, anims in pairs( anims ) do
+        quads[k] = {}
+        for i, v in ipairs( anims ) do
+            quads[k][#quads[k] + 1] = v.quad
+        end
     end
 
     return quads
@@ -127,6 +205,40 @@ function image( path )
     return images[path]
 end
 
+--  @function clamp
+--      | description: Clamp a value between bounds
+--      | params:
+--          number value: Value to clamp
+--          number min: Minimal value
+--          number max: Maximal value
+--      | return number clamped_value
+function clamp( value, min, max )
+    return value < min and min or value > max and max or value
+end
+
+--  @function rgb
+--      | description: Create a color table
+--      | params:
+--          number r: Red component
+--          number g: Green component
+--          number b: Blue component
+--          number a = 255: Alpha component
+--      | return table color
+function rgb( r, g, b, a )
+    return {
+        r / 255,
+        g / 255,
+        b / 255,
+        ( a or 255 ) / 255,
+    }
+end
+
+--  @function alpha
+--      | description: Create a color table from another color with the specified alpha
+--      | params:
+--          table color: Color table
+--          number a: Alpha value
+--      | return table color
 function alpha( color, a )
     return {
         color[1],

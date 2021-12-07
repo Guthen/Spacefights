@@ -7,7 +7,7 @@ Player.type = "starfighter"
 
 Player.notifications = {}
 
-function Player:dead( killer )
+function Player:on_death( killer )
     self.notifications[#self.notifications + 1] = {
         icon = killer.icon,
         color = killer.bullet_color,
@@ -17,10 +17,10 @@ function Player:dead( killer )
     }
 
     Camera:shake( 7 )
-    Ship.dead( self, killer )
+    Ship.on_death( self, killer )
 end
 
-function Player:targetdead( target )
+function Player:on_target_death( target )
     self.notifications[#self.notifications + 1] = {
         icon = target.icon,
         color = target.bullet_color,
@@ -29,7 +29,7 @@ function Player:targetdead( target )
         scale = 0,
     }
 
-    Ship.targetdead( self, target )
+    Ship.on_target_death( self, target )
 end
 
 function Player:hit( dt, dmg, x, y, color )
@@ -41,7 +41,7 @@ function Player:update( dt )
     Ship.update( self, dt )
 
     --  > Camera
-    Camera:centerat( self.x + self.w / 2, self.y + self.h / 2 )
+    Camera:center_at( self.x + self.w / 2, self.y + self.h / 2 )
 
     --  > Notifications
     for i, v in ipairs( self.notifications ) do
@@ -72,7 +72,7 @@ function Player:update( dt )
     local m_x, m_y = love.mouse.getPosition()
     m_x = Camera.x + m_x
     m_y = Camera.y + m_y
-    self:lookat( dt, m_x, m_y )
+    self:look_at( dt, m_x, m_y )
 
     --  > Fire
     if love.mouse.isDown( 1 ) then

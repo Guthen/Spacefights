@@ -43,16 +43,16 @@ function PowerUp:init( type, x, y )
 
     --  > List
     PowerUps[self.id] = self
-    HUD:addtarget( self, WHITE, function( powerup, player )
+    HUD:add_target( self, WHITE, function( powerup, player )
         return distance( powerup.x + powerup.w / 2, powerup.y + powerup.h / 2, player.x + player.w / 2, player.y + player.h / 2 ) / powerup.size_factor <= 500
     end )
 end
 
-function PowerUp:oncollide( ship )
+function PowerUp:on_collide( ship )
     --  > override purpose
 end
 
-function PowerUp:canaitarget( ship )
+function PowerUp:can_ai_target( ship )
     --  > override purpose
     return true
 end
@@ -61,7 +61,7 @@ function PowerUp:update( dt )
     --  > Collision with Ships
     for k, v in pairs( Ships ) do
         if v.health > 0 and collide( self.x, self.y, self.w, self.h, v.x, v.y, v.w, v.h ) then
-            self:oncollide( v )
+            self:on_collide( v )
             self:destroy()
             Ship.emit( self, "pickup" )
             v.target = nil --  > reset target
@@ -88,7 +88,7 @@ function PowerUp:draw()
 end
 
 function PowerUp:destroy()
-    HUD:removetarget( self )
+    HUD:remove_target( self )
     PowerUps[self.id] = nil
     GameObject.destroy( self )
 end

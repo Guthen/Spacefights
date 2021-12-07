@@ -31,16 +31,6 @@ ship.sounds = {
         "ships/shoot02b.wav",
         "ships/shoot03b.wav",
     },
-    hit = {
-        "ships/hit01.wav",
-        "ships/hit02.wav",
-        "ships/hit03.wav",
-    },
-    destroy = {
-        "ships/destroy01.wav",
-        "ships/destroy02.wav",
-        "ships/destroy03.wav",
-    },
 }
 
 return ship

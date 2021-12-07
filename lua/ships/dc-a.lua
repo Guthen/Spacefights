@@ -23,22 +23,4 @@ turret.guns = {
     },
 }
 
-turret.sounds = {
-    shoot = {
-        "ships/shoot01a.wav",
-        "ships/shoot02a.wav",
-        "ships/shoot03a.wav",
-    },
-    hit = {
-        "ships/hit01.wav",
-        "ships/hit02.wav",
-        "ships/hit03.wav",
-    },
-    destroy = {
-        "turrets/destroy01.wav",
-        "turrets/destroy02.wav",
-        "turrets/destroy03.wav",
-    },
-}
-
 return turret

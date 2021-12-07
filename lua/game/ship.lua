@@ -37,9 +37,9 @@ Ship.guns = {}
 
 Ship.sounds = {
     shoot = {
-        "ships/shoot01.wav",
-        "ships/shoot02.wav",
-        "ships/shoot03.wav",
+        "ships/shoot01a.wav",
+        "ships/shoot02a.wav",
+        "ships/shoot03a.wav",
     },
     hit = {
         "ships/hit01.wav",
@@ -50,6 +50,10 @@ Ship.sounds = {
         "ships/destroy01.wav",
         "ships/destroy02.wav",
         "ships/destroy03.wav",
+    },
+    reload = {
+        "ships/reload01.wav",
+        "ships/reload02.wav",
     },
 }
 
@@ -71,8 +75,9 @@ function Ship:init( x, y, type )
 
     --  > Load ship type
     self.type = type or types[math.random( #types )]
+    print( "loading", self.type, self.color, self.respawn )
 
-    local ship = table_copy( require( "lua.ships." .. self.type ) ) 
+    local ship = table_copy( require( "lua.ships." .. self.type, false ) ) 
     for k, v in pairs( ship ) do
         self[k] = v
     end
@@ -101,25 +106,26 @@ function Ship:init( x, y, type )
 
     --  > Add to list
     Ships[self.id] = self
-    HUD:addtarget( self, self.bullet_color, function( ship ) 
+    HUD:add_target( self, self.bullet_color, function( ship ) 
         return ship.health > 0 
     end, true )
 end
 
-function Ship:dead( killer )
+function Ship:on_death( killer )
     for i = 1, math.random( 3, 6 ) do
-        timer( i / 25, function()
-            Particle( self.x + math.random( -self.w, self.w ), self.y + math.random( -self.h, self.h ), math.min( i * self.w / 2, self.w * 2 ), self.bullet_color )
+        timer( i / math.random( 25, 50 ) / 100, function()
+            local radius = math.min( i * self.w / 2, self.w * 2 )
+            Particle( self.x + math.random( -self.w, self.w ), self.y + math.random( -self.h, self.h ), radius, self.bullet_color, math.min( 1, radius / i ) )
         end )
     end
 end
 
-function Ship:targetdead( target )
+function Ship:on_target_death( target )
     self.kills = self.kills + 1
 end
 
 function Ship:emit( type )
-    local sounds = self.sounds[type]
+    local sounds = self.sounds[type] or Ship.sounds[type]
     if not sounds or #sounds <= 0 then return false end
 
     local volume = math.min( 1 / distance( self.x, self.y, GamePlayer.x, GamePlayer.y ) * 100, 1 )
@@ -131,19 +137,19 @@ function Ship:emit( type )
     end
 end
 
-function Ship:getspeed()
+function Ship:get_speed()
     return math.abs( self.vel_x ) + math.abs( self.vel_y )
 end
 
 function Ship:forward( dt, speed_factor )
     if self.move_speed <= 0 then return end
-    if self:getspeed() >= self.max_speed then return false end
+    if self:get_speed() >= self.max_speed then return false end
 
     self.vel_x = self.vel_x + math.cos( self.ang ) * dt * self.move_speed * speed_factor
     self.vel_y = self.vel_y + math.sin( self.ang ) * dt * self.move_speed * speed_factor
 end
 
-function Ship:getangdiff( target_ang )
+function Ship:get_angle_difference( target_ang )
     local ang_diff = self.ang - target_ang
     if math.abs( ang_diff ) > math.pi then
         if self.ang > target_ang then
@@ -156,29 +162,32 @@ function Ship:getangdiff( target_ang )
     return ang_diff
 end
 
-function Ship:lookat( dt, x, y )
+function Ship:look_at( dt, x, y )
     local target_ang = direction_angle( self.x + self.w / 2, self.y + self.h / 2, x, y )
 
     --  > Calculate angle difference 
     --[[ https://jibransyed.wordpress.com/2013/09/05/game-maker-gradually-rotating-an-object-towards-a-target/ ]]
-    local ang_diff = self:getangdiff( target_ang )
+    local ang_diff = self:get_angle_difference( target_ang )
 
     --  > Gradually rotate
     self.ang = approach( dt * math.rad( self.turn_speed ), self.ang, self.ang - ang_diff )
+
+    --  fix the rotation issue
+    self.ang = self.ang % ( math.pi * 2 )
 end
 
-function Ship:getchildpos( child )
+function Ship:get_child_pos( child )
     return 
         --[[ formula: https://www.gamedev.net/forums/topic/635908-how-do-i-rotate-a-group-of-child-objects-in-relation-to-a-parent-object/5011516/ ]]
         ( child.x * math.cos( self.ang ) - child.y * math.sin( self.ang ) ) * self.size_factor,
         ( child.x * math.sin( self.ang ) + child.y * math.cos( self.ang ) ) * self.size_factor
 end
 
-function Ship:getgunpos( id )
+function Ship:get_gun_pos( id )
     local img_w, img_h = self.image:getDimensions()
     local gun = self.guns[id]
 
-    local child_x, child_y = self:getchildpos( gun )
+    local child_x, child_y = self:get_child_pos( gun )
     return 
         self.x + self.w / 2 + child_x, 
         self.y + self.h / 2 + child_y
@@ -188,14 +197,14 @@ function Ship:fire( dt, type )
     local fired_guns = 0
 
     for i, v in ipairs( self.guns ) do
-        if not v.dead and v.type == type then
+        if not v.on_death and v.type == type then
             --  > Cooldown
             if v.cooldown > v.max_cooldown then 
                 v.cooldown = 0
             
                 --  > Bullet
                 local bullet = type == "missile" and Missile() or Bullet()
-                bullet.x, bullet.y = self:getgunpos( i )
+                bullet.x, bullet.y = self:get_gun_pos( i )
                 bullet.size_factor = self.size_factor
                 bullet.ang = self.ang
                 bullet.color = self.bullet_color
@@ -203,7 +212,7 @@ function Ship:fire( dt, type )
 
                 local particle = Particle( bullet.x, bullet.y, bullet.particle_size_hit / 2, bullet.color )
                 particle.update = function( particle, dt )
-                    particle.x, particle.y = self:getgunpos( i )
+                    particle.x, particle.y = self:get_gun_pos( i )
                     Particle.update( particle, dt )
                 end
 
@@ -285,7 +294,12 @@ function Ship:update( dt )
 
     --  > Cooldown
     for i, v in ipairs( self.guns ) do
+        local has_just_reloaded = v.cooldown < v.max_cooldown and v.cooldown + dt >= v.max_cooldown
         v.cooldown = v.cooldown + dt
+
+        if has_just_reloaded and v.type == "missile" then
+            self:emit( "reload" )
+        end
     end
 
     --  > Hit Animation
@@ -322,7 +336,7 @@ function Ship:draw()
         love.graphics.setColor( 1, 1, 1 )
         if self.health > 0 then
             local w = thruster:getWidth()
-            local child_x, child_y = self:getchildpos( self.thruster )
+            local child_x, child_y = self:get_child_pos( self.thruster )
             local quad = thruster_quads[self.thruster_quad_id]
             love.graphics.draw( thruster, quad, self.x + self.w / 2 + child_x - math.cos( self.ang ) * ( w - 7 * self.size_factor ), self.y + self.h / 2 + child_y - math.sin( self.ang ) * ( w - 7 * self.size_factor ), self.ang, self.size_factor, self.size_factor, 0, 0 )
         end
@@ -346,7 +360,7 @@ function Ship:draw()
 
     --[[ love.graphics.setColor( self.bullet_color )
     for i, v in ipairs( self.guns ) do
-        local x, y = self:getgunpos( i )
+        local x, y = self:get_gun_pos( i )
         love.graphics.line( x, y, x + math.cos( self.ang ) * Bullet.max_destroy_time * Bullet.move_speed, y + math.sin( self.ang ) * Bullet.max_destroy_time * Bullet.move_speed )
     end ]]
 end
